@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Google-esque Loading Bar (CSS only)</title>
+<style>
+  /* ===== Customizable bits ===== */
+  :root{
+    --bar-height: 3px;          /* thickness of the bar */
+    --bar-color: #1a73e8;       /* Googley blue */
+    --bar-bg: transparent;      /* page/topbar background under the bar */
+    --anim-speed-1: 2.1s;       /* primary segment duration */
+    --anim-speed-2: 2.1s;       /* secondary segment duration */
+    --easing-1: cubic-bezier(0.65, 0.815, 0.735, 0.395);
+    --easing-2: cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  /* ===== Top fixed progress bar ===== */
+  .top-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+	width: 10%;
+    height: var(--bar-height);
+    background: var(--bar-bg);
+    overflow: hidden;
+    z-index: 9999;
+  }
+
+  /* The moving “ink” track */
+  .top-progress::before,
+  .top-progress::after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    will-change: left, right;
+    background-color: var(--bar-color);
+    transform-origin: left;
+  }
+
+  /* Primary traveling segment */
+  .top-progress::before {
+    left: -35%;
+    right: 100%;
+    animation: indeterminate-primary var(--anim-speed-1) infinite;
+    animation-timing-function: var(--easing-1);
+  }
+
+  /* Secondary following segment (fainter) */
+  .top-progress::after {
+    left: -200%;
+    right: 100%;
+    opacity: 0.5;
+    animation: indeterminate-secondary var(--anim-speed-2) infinite;
+    animation-timing-function: var(--easing-2);
+  }
+
+  /* Keyframes emulate Material/Google linear indeterminate motion */
+  @keyframes indeterminate-primary {
+    0%   { left: -35%; right: 100%; }
+    60%  { left: 100%; right: -90%; }
+    100% { left: 100%; right: -90%; }
+  }
+
+  @keyframes indeterminate-secondary {
+    0%   { left: -200%; right: 100%; }
+    45%  { left: 107%; right: -8%; }
+    100% { left: 107%; right: -8%; }
+  }
+
+  /* Demo page fluff — not required */
+  body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  .demo {
+    padding: 4rem 1rem 2rem;
+    max-width: 60ch;
+    margin: 10vh auto 0;
+    line-height: 1.6;
+    color: #222;
+  }
+  .controls { margin-top: 1rem; display: flex; gap: .5rem; flex-wrap: wrap; }
+  .btn {
+    border: 1px solid #ddd; padding: .5rem .75rem; border-radius: .5rem; cursor: pointer;
+    background: #fff;
+  }
+  .btn[data-color]{ border-color: currentColor; }
+  .btn:hover { background: #f6f6f6; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,1px,1px); border: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Accessible label for screen readers -->
+<div class="sr-only" role="status" aria-live="polite">
+  Loading…
+</div>
+
+<!-- The loading bar (show/hide this element to start/stop the animation) -->
+<div class="top-progress" aria-hidden="true"></div>
+
+<!-- Demo content -->
+<main class="demo">
+  <h1>Google-esque Loading Bar</h1>
+  <p>This is an indeterminate progress bar similar to what you see in Google apps: a thin animated stripe that runs across the top.</p>
+  <div class="controls">
+    <button class="btn" onclick="toggle()">Toggle</button>
+    <button class="btn" data-color onclick="setColor('#1a73e8')">Blue</button>
+    <button class="btn" data-color style="color:#34a853" onclick="setColor('#34a853')">Green</button>
+    <button class="btn" data-color style="color:#ea4335" onclick="setColor('#ea4335')">Red</button>
+    <button class="btn" data-color style="color:#fbbc05" onclick="setColor('#fbbc05')">Yellow</button>
+  </div>
+  <p>Tip: change <code>--bar-height</code> for thicker/thinner lines, or <code>--bar-color</code> for theme.</p>
+</main>
+
+<script>
+  const root = document.documentElement;
+  const bar  = document.querySelector('.top-progress');
+
+  function setColor(c){ root.style.setProperty('--bar-color', c); }
+  function toggle(){ bar.style.display = (bar.style.display === 'none') ? '' : 'none'; }
+</script>
+
+</body>
+</html>

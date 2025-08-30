@@ -51,6 +51,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 65365
+          },
           "configurations": {
             "production": {
               "buildTarget": "MessagingFront:build:production"
@@ -75,11 +78,15 @@
               }
             ],
             "styles": [
+              "./node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ]
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "2cf1e8f9-e41c-466c-8938-bb86f59077c6"
   }
 }

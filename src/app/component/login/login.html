@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Example</title>
+</head>
+<body>
+  @if(!criticalError){
+  <main class="card-wrapper" role="main">
+    <div class="brand">
+      <div class="logo" (click)="errorEasterEggIncrement()">FlunkyMessaging</div>
+      <div>
+        <h1>Welcome back</h1>
+        <p class="lead">
+            @if(!tryingToSignUp){
+                Sign in to continue to your account
+            } @else {
+                Register with us to use the service
+            }
+        </p>
+      </div>
+      <div class="form-type">
+        @if(!tryingToSignUp){
+            <h2>Sign In</h2>
+        } @else {
+            <h2>Sign Up</h2>
+        }
+      </div>
+    </div>
+
+    <form id="login-form" autocomplete="on" (ngSubmit)="signInSignUpSelector(tryingToSignUp)">
+      <div>
+        <label for="username">Username</label>
+        <input  id="email" name="username" type="text" placeholder="username" [(ngModel)] = "username" required />
+      </div>
+
+      <div>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="••••••••" [(ngModel)] = "password" required />
+      </div>
+
+      <div class="actions">
+        <div class="urDumbText">
+            @if(isSignInFailed){
+            <small style="color: red; height: 10px;">Incorrect username or password</small>
+            }
+            @if(userExists){
+                <small style="color: red; height: 10px;">Such user already exists</small>
+            }
+            @if(passwdOrUsernameShort){
+                <small style="color: red; height: 10px;">Password should be 8 chars; username should be 6 chars</small>
+            }
+            @if(regError){
+                <small style="color: red; height: 10px;">There's been an error registering you</small>
+
+            }
+            @if (regisrationSuccess){
+                <small style="color:cornflowerblue; height: 10px;">You may now sign in</small>
+            }
+      </div>
+        <button id="signin" class="btn btn-primary" type="submit">
+            @if(!tryingToSignUp){
+                Sign In
+            } @else {
+                Sign Up
+            }
+        </button>
+      </div>
+    </form>
+
+    <p class="footer-note">
+        @if(!tryingToSignUp){
+            Don't have an account? 
+        } @else {
+            Already registered with us?
+        }
+        
+        <a class="link-small" style="cursor: pointer; color: blue; font-size: 16px;" (click)="signUpSignInSwitch()">
+            @if(!tryingToSignUp){
+                Create account
+            } @else{
+                Sign in
+            }
+        </a>
+    </p>
+  </main>
+} @else{
+    <div id="criticalError">
+      <div id="criticalError-card">
+          <div style="display:inline;"><sub>Error:</sub><h1 style="font-size: 72px; margin: 0; display: inline;">500</h1></div>
+          <p>There's an unexpected server-side error. Please reload the page and try again.</p>
+      </div>
+  </div>
+}
+</body>
+</html>

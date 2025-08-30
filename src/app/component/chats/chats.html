@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat App</title>
+</head>
+<body>
+    @if (!criticalError){
+        <div class="logo">FlunkyMessaging</div>
+        <div class="chat-container">
+        <div class="chat-list">
+            @if(!loading){
+                <ul>
+                @for(item of chats; track item.id){
+                    <li class="chat-item" [class.selected]="selectedChat == item.id" (click)="selectChat(item.id, item.name)">
+                        <p style="margin: 0;">{{item.name}}</p>
+                        <div class="chatmanage">
+                            @if(selectedChat == item.id){
+                                <button class="btn" (click)="chatSetup($event)">Manage</button>
+                            }
+                        </div>
+                        
+                    </li>
+                } 
+                <li (click)="newChatToggle()">
+                    <div class="newChat" >
+                        @if(newChat){
+                            <input class="newChatInput" placeholder="New chat name" type="text" [(ngModel)]="newChatName">
+                            <button class="btn btn-primary" (click)="newChatCreate($event)">Create chat</button>
+                            <button class="btn exit" (click)="newChatToggleOff($event)">×</button>
+                        }
+                        @else{
+                            <p style="color: blue; font-weight: bold;">{{newChatDivMsg}}</p>
+                        }
+                    </div>
+                </li>
+            </ul>
+            } @else {
+                <h3>Loading...</h3>
+            }
+            
+        </div>
+        <div class="chat-window">
+            <div class="chat-header">
+                <div id="chatname"><h2 style="margin: 0;">{{selectedChatName}}</h2></div>
+                @if(inTheUserMenu){
+                    <div class="user-menu">
+                        Logged in as {{username}}
+                        <button class="btn btn-primary" (click)="logout($event)">Log out?</button>
+
+                    </div>
+                }
+                <div style="cursor: pointer;" class="user-avatar" (click)="switchUserMenu()">{{username.slice(0,1)}}
+                </div>
+            </div>
+            @if (!settingUpChat){
+            <div class="chat-messages">
+                
+                    @if(selectedChat==null){
+                        <p>Select a chat to start messaging.</p>
+                    } @else {
+                        @for(item of messagesToDisplay; track $index){
+                            <div 
+                            [ngStyle]="{'display': 'flex', 
+                            'justify-content': item.senderUsername==username ? 'flex-end' : 'flex-start',
+                            'width':'100%'}">
+                                <p>
+                                    @if(!(item.senderUsername==username)){ <strong>{{item.senderUsername}}:</strong> }
+                                    {{item.messageText}}
+                                </p>
+                            </div>
+                        }
+                        <button class="btn" style="width: 15%;" [disabled]="noMoreMessages" (click)="appendOlderMessages()">
+                            @if(!noMoreMessages){
+                                Load more...
+                            } @else {No more messages to load}
+                        </button>
+                    }
+            </div>} @else {
+                <div id="chat-setup">
+                        <div id="chat-setup-card">
+                            @if(!addingMembers){
+                                <h3>Managing chat 「{{selectedChatName}}」</h3>
+                                <button class="btn" (click)="addMembersSwitch()">Add new members</button>
+                                <div id="membersToAddList">
+                                    <ol>
+                                        @for(item of members; track $index){
+                                            <li>{{item}}</li>
+                                        }
+                                    </ol>
+                                </div>
+                                <button class="btn" [class.notadmin] = "chatDeleteConfirm==2" [class.deletechat] = "chatDeleteConfirm==0" [class.areyousure]="chatDeleteConfirm==1" (click)="deleteChat()">
+                                @if(chatDeleteConfirm==0){Delete this chat}
+                                @else if(chatDeleteConfirm==1) {Are you sure?}
+                                @else if(chatDeleteConfirm==2) {You are not an admin}
+                                </button>
+                            } @else {
+                                <h3>Adding members to {{selectedChatName}}</h3>
+                                <small style="padding-bottom: 10px;">Beware that incorretly put usernames WILL NOT be added to chat</small>
+                                <div id="addControls">
+                                    <input id="newMembersInput" placeholder="Username" type="text" [(ngModel)]="newMemberUsername">
+                                    <button class="btn" style="margin-left: 15px;" (click)="addMemberToArray()">
+                                        <h2 style="margin: 0;">+</h2>
+                                    </button>
+                                </div>
+                                
+                                <div id="membersToAddList">
+                                    @for(item of newMembers; track $index){
+                                        <p>{{$index}}  {{item}}</p>
+                                    }
+                                </div>
+                                @if(!loading){
+                                    <button class="btn" (click)="addMembers()"></button>
+                                } @else {
+                                    <button class="btn" style="background-color: grey;">Loading...</button>
+                                }
+                                
+
+                                
+                            }
+                            
+                        </div>
+                </div>
+                }
+            <div class="chat-input">
+                <input type="text" placeholder="Type a message..." [(ngModel)]="newMessageText">
+                <button (click)="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+    } @else{
+        <div id="criticalError">
+            <div id="criticalError-card">
+                <div style="display:inline;"><sub>Error:</sub><h1 style="font-size: 72px; margin: 0; display: inline;">500</h1></div>
+                <p>There's an unexpected server-side error. Please reload the page and try again.</p>
+            </div>
+        </div>
+    }
+    
+</body>
+</html>
