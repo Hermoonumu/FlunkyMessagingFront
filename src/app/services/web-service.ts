@@ -23,6 +23,7 @@ export class WebService {
   authSvc = inject(AuthService);
   http = inject(HttpClient);
   skipMessagesAmount : number = 0;
+  
   getUserChatList() : Observable<Chat[]>{
     return this.http.get<Chat[]>(apiURL.concat("/chats/myChats"), { headers:this.headerConstruct() }).pipe(
       map( (i:Chat[]) => i),
@@ -56,6 +57,7 @@ export class WebService {
   newUserCreate(creds:LoginForm){
     return this.http.post(apiURL.concat('/auth/register'), creds, {observe: 'response'}).pipe(
       map((response)=>{
+        console.log(response.status);
         return response.status;
       })
     );

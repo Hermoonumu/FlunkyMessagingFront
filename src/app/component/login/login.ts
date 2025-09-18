@@ -4,6 +4,7 @@ import { AuthService, LoginForm } from '../../services/auth-service';
 import { Router } from '@angular/router';
 import { WebService } from '../../services/web-service';
 import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,7 @@ export class Login {
   passwdOrUsernameShort:boolean = false;
   userExists:boolean = false;
   tryingToSignUp:boolean = false;
-  regisrationSuccess:boolean = false;
+  registrationSuccess:boolean = false;
   regError:boolean = false;
   criticalError:boolean = false;
   toError500:number = 0;
@@ -31,10 +32,10 @@ export class Login {
      private cdRef: ChangeDetectorRef){}
 
   submitLogin(){
+
     this.creds.username = this.username;
     this.creds.password = this.password;
     this.auth.login(this.creds).subscribe(resp => {
-      console.log(resp)
       if (resp==1) {
         this.router.navigate(['/chats']);
         return;
@@ -54,45 +55,39 @@ export class Login {
     this.creds.username = this.username;
     this.creds.password = this.password;
     this.web.newUserCreate(this.creds).subscribe({
-  next: (code) => {
-    console.log('Success code:', code); // only 2xx
-    if (code === 200) {
-      console.log("YOU HAVE TO LOG");
-      this.signUpSignInSwitch();
-      this.regisrationSuccess = true;
-      this.cdRef.detectChanges();
+      error: (code:HttpErrorResponse) => {
+      if (code.status == 200) {
+        console.log(code.status);
+        this.registrationSuccess = true;
+        this.userExists = false;
+        this.regError = false;
+        this.signUpSignInSwitch();
+        this.cdRef.detectChanges();
+      }
+      else if (code.status == 400) {
+        this.passwdOrUsernameShort = true;
+        this.userExists = false;
+        this.registrationSuccess=false;
+        this.regError = false;
+        this.cdRef.detectChanges();
+      }
+      else if (code.status == 409) {
+        this.userExists = true;
+        this.registrationSuccess=false;
+        this.passwdOrUsernameShort = false;
+        this.regError = false;
+        this.cdRef.detectChanges();
+      }
+      else if (code.status != 400 && code.status != 409) {
+        this.passwdOrUsernameShort = false;
+        this.registrationSuccess=false;
+        this.userExists = false;
+        this.regError = true;
+        this.cdRef.detectChanges();
+      }
     }
-  },
-  error: (err) => {
-    if (err.status === 400) {
-      this.passwdOrUsernameShort = true;
-      this.userExists = false;
-      this.regisrationSuccess=false;
-      this.regError = false;
-      this.cdRef.detectChanges();
-    }
-    if (err.status === 409) {
-      this.userExists = true;
-      this.regisrationSuccess=false;
-      this.passwdOrUsernameShort = false;
-      this.regError = false;
-      this.cdRef.detectChanges();
-    }
-    if (err.status !== 400 && err.status !== 409) {
-      this.passwdOrUsernameShort = false;
-      this.regisrationSuccess=false;
-      this.userExists = false;
-      this.regError = true;
-      this.cdRef.detectChanges();
-    }
-    if (err.status === 500){
-      this.criticalError=true;
-    }
+  })
   }
-});
-
-  }
-
   signUpSignInSwitch(){
     this.tryingToSignUp=!this.tryingToSignUp;
     this.username = "";

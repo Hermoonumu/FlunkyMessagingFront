@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, resolveForwardRef } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResourceFn, HttpResponse } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
@@ -41,15 +41,14 @@ export class AuthService {
   login(creds: LoginForm): Observable<number> {
   return this.http.post<TokenPair>(`${apiURL}/login`, creds, { observe: 'response' }).pipe(
     map((res: HttpResponse<TokenPair>) => {
-      // success
       this.isAuthenticated = true;
       this.accessToken = res.body!.accessToken;
       this.username = jwtDecode<TokenPayload>(this.accessToken).unique_name;
       localStorage.setItem("auth", JSON.stringify(res.body));
-      return 1; // success code
+      
+      return 1; 
     }),
     catchError((error: HttpErrorResponse) => {
-      // handle errors
       if (error.status === 500) {
         return of(-1);
       }
@@ -69,34 +68,42 @@ export class AuthService {
     this.isAuthenticated = false;
     return of(false);
   }
-
   this.parsed = JSON.parse(authData);
   const headers = new HttpHeaders({
     Authorization: `Bearer ${this.parsed!.accessToken}`
   });
 
-  return this.http.get(apiURL, { headers }).pipe(
-    map(() => {
-      this.accessToken = this.parsed!.accessToken;
-      this.username = jwtDecode<TokenPayload>(this.accessToken).unique_name;
-      this.isAuthenticated = true;
-      return true; // Return a boolean, not an observable
+  return this.http.get(apiURL, { headers, observe:'response' }).pipe(
+    map((res: HttpResponse<Object>) => {
+      if (res.status === 200) {
+        this.accessToken = this.parsed!.accessToken;
+        this.username = jwtDecode<TokenPayload>(this.accessToken).unique_name;
+        this.isAuthenticated = true;
+        return true;
+      }
+      return false;
     }),
-    catchError(() => {
-      this.refreshToken = this.parsed!.refreshToken;
-      return this.http.post<TokenPair>(`${apiURL}/refresh`, { refreshToken: this.refreshToken }).pipe(
-        map(tokens => {
-          this.isAuthenticated = true;
-          this.accessToken = tokens.accessToken;
-          this.username = jwtDecode<TokenPayload>(this.accessToken).unique_name;
-          localStorage.setItem('auth', JSON.stringify(tokens));
-          return true; // Still just a boolean
-        }),
-        catchError(() => {
-          this.isAuthenticated = false;
-          return of(false);
-        })
-      );
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 || error.status === 403) {
+        console.log("Token expired or unauthorized, attempting refresh...");
+        this.refreshToken = this.parsed!.refreshToken;
+        return this.http.post<TokenPair>(`${apiURL}/refresh`, { refreshToken: this.refreshToken }).pipe(
+          map(tokens => {
+            this.isAuthenticated = true;
+            this.accessToken = tokens.accessToken;
+            this.username = jwtDecode<TokenPayload>(this.accessToken).unique_name;
+            localStorage.setItem('auth', JSON.stringify(tokens));
+            return true;
+          }),
+          catchError(() => {
+            this.isAuthenticated = false;
+            return of(false);
+          })
+        );
+      }
+      // For other errors, just return false
+      this.isAuthenticated = false;
+      return of(false);
     })
   );
 }

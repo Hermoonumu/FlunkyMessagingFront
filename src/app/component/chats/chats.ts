@@ -65,6 +65,7 @@ export class Chats {
   }
 
   addMembers(){
+    this.loading=true;
     if (this.newMembers.find(member => member == "ISpecificallyWantToInvokeError500")){
       this.criticalError=true;
     }
@@ -72,6 +73,7 @@ export class Chats {
       error: (err:HttpResponse<any>)=>{
         this.chatSetup(null);
         this.retrieveChatMembers();
+        this.loading=false;
         if (err.status==500){
           this.criticalError=true;
         }
@@ -85,11 +87,11 @@ export class Chats {
     this.newMembers=[];
     this.settingUpChat = !this.settingUpChat;
     this.addingMembers=false;
-    console.log(this.members);
     this.chatDeleteConfirm=0;
   }
 
   deleteChat(){
+    this.stopPolling$.next();
     if (this.chatDeleteConfirm==0){
       this.chatDeleteConfirm=1;
       return;
@@ -136,6 +138,7 @@ export class Chats {
     this.selectedChatName=name;
     this.messagesToDisplay=[];
     this.retrieveChatMembers();
+    this.retrieveChatMessages()
     this.pollForNewMessages();
   }
 
@@ -201,7 +204,6 @@ export class Chats {
         return;
       }
       if (resp.status == 404){
-        console.log("This chat doesn't exist");
         return;
       }
       if (resp.status == 200){
@@ -217,11 +219,9 @@ export class Chats {
     this.web.skipMessagesAmount+=10;
     this.web.getLatestMessages(this.selectedChat!, "null", false).subscribe({
       next: (res)=>{
-        console.log(res);
         if (res.length==0){ this.noMoreMessages=true; }
         else{
           this.messagesToDisplay = this.messagesToDisplay.concat(res);
-          console.log(this.messagesToDisplay.length);
         }
         this.cdRef.detectChanges();
       },
@@ -254,7 +254,6 @@ export class Chats {
     this.loading=true;
     this.web.getUserChatList().subscribe({
       next: (i : Chat[]) => {
-        console.log(i);
         this.chats = i;
         this.loading = false;
         this.cdRef.detectChanges();

@@ -95,7 +95,7 @@
                                 @else if(chatDeleteConfirm==2) {You are not an admin}
                                 </button>
                             } @else {
-                                <h3>Adding members to {{selectedChatName}}</h3>
+                                <h3>Adding members to 「{{selectedChatName}}」</h3>
                                 <small style="padding-bottom: 10px;">Beware that incorretly put usernames WILL NOT be added to chat</small>
                                 <div id="addControls">
                                     <input id="newMembersInput" placeholder="Username" type="text" [(ngModel)]="newMemberUsername">
@@ -110,7 +110,7 @@
                                     }
                                 </div>
                                 @if(!loading){
-                                    <button class="btn" (click)="addMembers()"></button>
+                                    <button class="btn" (click)="addMembers()">Confirm</button>
                                 } @else {
                                     <button class="btn" style="background-color: grey;">Loading...</button>
                                 }

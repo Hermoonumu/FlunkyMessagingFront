@@ -9,6 +9,7 @@ export const loginGuard: CanActivateFn = (route, state) => {
   return authSvc.verifyTokens().pipe(
     map(isValid => {
       authSvc.isAuthenticated = isValid;
+      console.log(authSvc.isAuthenticated)
       return isValid ? true : router.createUrlTree(['/login']);
     })
   );
