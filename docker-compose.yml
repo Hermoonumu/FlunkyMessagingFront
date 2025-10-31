@@ -1,0 +1,17 @@
+services:
+  dijkstra:
+   container_name: MessagingFront
+   build: .
+   image: messagingfront:v1
+   ports:
+    - 80:80
+    - 4200:4200
+   expose:
+    - 80
+    - 4200
+   networks:
+    - internalnet 
+
+networks:
+ internalnet:
+  driver: bridge

@@ -3,7 +3,7 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResourceFn, HttpResponse } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
 
-export const apiURL:string = "http://192.168.31.243:6865/api/auth";
+export const apiURL:string = "https://flunkymessagingapp.onrender.com:6865/api/auth";
 
 
 export interface TokenPair{

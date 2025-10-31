@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { AuthService, LoginForm } from '../../services/auth-service';
 import { Router } from '@angular/router';
 import { WebService } from '../../services/web-service';
-import { of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({

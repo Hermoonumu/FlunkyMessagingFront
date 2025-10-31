@@ -6,7 +6,7 @@ import { AuthService, LoginForm } from './auth-service';
 
 
 
-export const apiURL:string = "http://192.168.31.243:6865/api";
+export const apiURL:string = "http://flunkymessagingapp.onrender.com:6865/api";
 
 export interface Message{
   senderUsername: string,
