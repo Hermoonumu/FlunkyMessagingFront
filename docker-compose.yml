@@ -1,8 +1,8 @@
 services:
   dijkstra:
-   container_name: MessagingFront
+   container_name: MessagingFrontApp
    build: .
-   image: messagingfront:v1
+   image: messagingfrontApp:v1
    ports:
     - 80:80
     - 4200:4200
