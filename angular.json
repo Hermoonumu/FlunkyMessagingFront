@@ -52,7 +52,11 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "port": 65365
+            "host":"0.0.0.0",
+            "port": 65365,
+            "allowedHosts": [
+            "flunkymessagingfront.onrender.com"
+          ]
           },
           "configurations": {
             "production": {
